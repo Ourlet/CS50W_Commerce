@@ -1,0 +1,51 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div>
+        <h2>{{ listing.title }}</h2>
+        <img src="{{ listing.image }}" alt="">
+        <p>{{ listing.description }}</p>
+        <p>{{ listing.price }}</p>
+    </div>
+
+    <div>
+        {% if user.is_authenticated %}
+            In my watchlist <input type="checkbox" check_test="{{ favorite.favorite }}" name="" id="">    
+        {% else %}
+            
+        {% endif %}
+    </div>
+
+    <div>
+        <h2>Bidding</h2>
+        {% if user.is_authenticated and request.user == listing.creator %}
+            <p>current bid: {{ listing.price }}</p>
+            <input type="submit" value="Close auction">  
+        {% elif user.is_authenticated %}
+            <input type="text" name="" id="" placeholder="{{ listing.price }}">
+            <input type="submit" value="Bid"> 
+        {% else %}
+            <p>You need to sign in to Bid</p>
+        {% endif %}
+    </div>
+
+    <div>
+        <h2>Comments</h2>
+        {% if user.is_authenticated %}
+            <h3>Leave a comment</h3> 
+            <label for="content">Your comment</label><br>
+            <textarea name="content" id="" cols="30" rows="10" required>What do you think?</textarea><br>
+            <input type="submit" value="Add your comment">
+        {% else %}
+        
+        {% endif %}
+
+        <h3>Comments on this product</h3>
+        {% for comment in comments %}
+            <p>{{ comment.writer}}</p>
+            <p>{{ comment.content}}</p>
+            <p>{{ comment.comment_creation_date}}</p>
+        {% endfor %}
+    </div>
+
+{% endblock %}
