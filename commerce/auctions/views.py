@@ -78,7 +78,7 @@ def create(request):
 
 def listing(request, listing_id):
     listing = Listing.objects.get(id=listing_id)
-    comments = listing.item.all()
+    comments = listing.items.all()
     return render(request, "auctions/listing.html",{
         "listing" : listing,
         "comments": comments
