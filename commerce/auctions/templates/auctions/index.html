@@ -4,7 +4,7 @@
     <h2>Active Listings</h2>
 
     {% for item in listings %}
-    <div><a href="{% url 'listing' item.id %}">
+    <div><a href="{% url 'listing' item.title %}">
             <h3>{{ item.title }}</h3>
             <p>{{ item.price }}</p>
             <p>{{ item.description }}</p>

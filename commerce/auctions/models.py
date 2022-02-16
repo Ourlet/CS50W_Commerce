@@ -41,7 +41,7 @@ class Comment(models.Model):
         return f"{self.id} : {self.item} by {self.writer} with {self.content}"
 
 class Watchlist(models.Model):
-    watcher = models.ManyToManyField(User, related_name="watchers")
+    watcher = models.ForeignKey(User, on_delete=models.CASCADE, related_name="watchers")
     watch_listing = models.ManyToManyField(Listing, related_name="watch_listings")
 
     def __str__(self):

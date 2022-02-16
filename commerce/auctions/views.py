@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 
 from .models import User, Listing, Bid, Comment
@@ -65,7 +65,10 @@ def register(request):
         return render(request, "auctions/register.html")
 
 def create(request):
-    creator = request.user
+    # Identify the person logged as seller
+    seller = request.user
+
+    # Retrieve data from the Front End
     if request.method == "POST":
         title = request.POST["title"]
         description = request.POST["description"]
@@ -73,17 +76,19 @@ def create(request):
         category = request.POST["category"]
         image = request.POST["image"] 
 
-        Listing(title=title, description=description, price=price, image=image, category=category, creator=creator).save()
-    return render(request, "auctions/create.html")
+        # Add the new listing in the Database
+        Listing(title=title, description=description, price=price, image=image, category=category, seller=seller).save()
+    
+    return HttpResponseRedirect(reverse("index"))
 
-def listing(request, listing_id):
-    listing = Listing.objects.get(id=listing_id)
+def listing(request, title):
+    listing = get_object_or_404(Listing, title=title)
     comments = listing.items.all()
     return render(request, "auctions/listing.html",{
+        "title" : title,
         "listing" : listing,
         "comments": comments
     })
 
 def add_watchlist(request, listing_id):
-    
     return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
