@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 
-from .models import User, Listing, Bid, Comment
+from .models import User, Listing, Bid, Comment, Watchlist
 
 
 def index(request):
@@ -82,13 +82,27 @@ def create(request):
     return HttpResponseRedirect(reverse("index"))
 
 def listing(request, title):
+
     listing = get_object_or_404(Listing, title=title)
     comments = listing.items.all()
+    
+    watchlisted = Watchlist.objects.filter(watcher = request.user)
+    print(watchlisted)
+    print(watchlisted.filter(watch_listing = listing))
+    #if watchlisted.filter(watch_listing = listing) == None:
+    #    watchlist = False
+    #else :
+    #    watchlist = True
+
     return render(request, "auctions/listing.html",{
         "title" : title,
         "listing" : listing,
-        "comments": comments
+        "comments": comments,
+        #"watchlist" : watchlist
     })
 
-def add_watchlist(request, listing_id):
-    return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
+def add_watchlist(request, title):
+    return HttpResponseRedirect(reverse("listing", args=(title,)))
+
+def remove_watchlist(request, title):
+    return HttpResponseRedirect(reverse("listing", args=(title,)))

@@ -10,9 +10,18 @@
 
     <div>
         {% if user.is_authenticated %}
-            In my watchlist <input type="checkbox" check_test="{{ favorite.favorite }}" name="" id="">    
+            {% if watchlist == False %}
+                <form action="{% url 'add-watchlist' listing.title %}" method="POST">{% csrf_token %}
+                    <button name="" class="btn btn-primary" placeholder="Add to favorite">Add to favorite</button> 
+                </form>
+        
+            {% else %}
+                <form action="{% url 'remove-watchlist' listing.title %}" method="POST">{% csrf_token %}
+                    <button name="" class="btn btn-secondary" placeholder="Remove to favorite">Remove to favorite</button> 
+                </form>
+            {% endif %}
         {% else %}
-            
+                
         {% endif %}
     </div>
 
