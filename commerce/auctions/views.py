@@ -1,7 +1,7 @@
 from asyncio.windows_events import NULL
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect; HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 
@@ -92,11 +92,16 @@ def listing(request, title):
     
     # Request DB to know if user has or not the listing as Watchlist
     watcher = request.user
+    print(watcher)
+    print(watcher.watchers.all())
     watchlisted = watcher.watchers.all().filter(watch_listing = listing)
+    print(watchlisted)
     if not watchlisted:
         watchlist = False
     else :
         watchlist = True
+
+    print(watchlist)
 
     # Data returned to Listing page
     return render(request, "auctions/listing.html",{
@@ -107,9 +112,17 @@ def listing(request, title):
     })
 
 def add_watchlist(request, title):
-        
+    if request.method == "POST":
+        watcher = request.user
+        listing = request.POST.get("listing_id")
+        print(watcher)
+        print(listing)
+        Watchlist(watcher=watcher, watch_listing = listing).save()
     return HttpResponseRedirect(reverse("listing", args=(title,)))
 
-
 def remove_watchlist(request, title):
+    # if request.method == "POST":
+    #     watcher = request.user
+    #     listing = get_object_or_404(Listing, title=title)
+    #     Watchlist.objects.filter(watcher=watcher, watch_listing =listing).delete()
     return HttpResponseRedirect(reverse("listing", args=(title,)))
