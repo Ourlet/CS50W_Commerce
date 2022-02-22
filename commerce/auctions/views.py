@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
@@ -83,26 +84,32 @@ def create(request):
 
 def listing(request, title):
 
+    # Get the listing data if the listing exist
     listing = get_object_or_404(Listing, title=title)
+
+    # Get all comments linking to the listing
     comments = listing.items.all()
     
-    watchlisted = Watchlist.objects.filter(watcher = request.user)
-    print(watchlisted)
-    print(watchlisted.filter(watch_listing = listing))
-    #if watchlisted.filter(watch_listing = listing) == None:
-    #    watchlist = False
-    #else :
-    #    watchlist = True
+    # Request DB to know if user has or not the listing as Watchlist
+    watcher = request.user
+    watchlisted = watcher.watchers.all().filter(watch_listing = listing)
+    if not watchlisted:
+        watchlist = False
+    else :
+        watchlist = True
 
+    # Data returned to Listing page
     return render(request, "auctions/listing.html",{
         "title" : title,
         "listing" : listing,
         "comments": comments,
-        #"watchlist" : watchlist
+        "watchlist" : watchlist
     })
 
 def add_watchlist(request, title):
+        
     return HttpResponseRedirect(reverse("listing", args=(title,)))
+
 
 def remove_watchlist(request, title):
     return HttpResponseRedirect(reverse("listing", args=(title,)))
