@@ -12,7 +12,7 @@
         {% if user.is_authenticated %}
             {% if watchlist == False %}
                 <form action="{% url 'add-watchlist' listing.title %}" method="POST">{% csrf_token %}
-                    <button name="" class="btn btn-primary" placeholder="Add to favorite">Add to favorite</button> 
+                    <button name="add" class="btn btn-primary" placeholder="Add to favorite">Add to favorite</button> 
                     <input type="hidden" name="listing_id" value="{{ listing.id }}">
                 </form>
         

@@ -92,16 +92,11 @@ def listing(request, title):
     
     # Request DB to know if user has or not the listing as Watchlist
     watcher = request.user
-    print(watcher)
-    print(watcher.watchers.all())
     watchlisted = watcher.watchers.all().filter(watch_listing = listing)
-    print(watchlisted)
     if not watchlisted:
         watchlist = False
     else :
         watchlist = True
-
-    print(watchlist)
 
     # Data returned to Listing page
     return render(request, "auctions/listing.html",{
@@ -112,17 +107,27 @@ def listing(request, title):
     })
 
 def add_watchlist(request, title):
+
+    # Identify the person logged as watcher
+    watcher = request.user
+
+    # Record the action from the UI to add the listing to watchlist
     if request.method == "POST":
-        watcher = request.user
         listing = request.POST.get("listing_id")
-        print(watcher)
-        print(listing)
-        Watchlist(watcher=watcher, watch_listing = listing).save()
+
+        # Save the desire to add to the watchlist to the DB
+        instance = Watchlist.objects.create(watcher=watcher)
+        instance.watch_listing.set(listing)
+        
+    # Return the user to the listing page
     return HttpResponseRedirect(reverse("listing", args=(title,)))
 
 def remove_watchlist(request, title):
-    # if request.method == "POST":
-    #     watcher = request.user
-    #     listing = get_object_or_404(Listing, title=title)
-    #     Watchlist.objects.filter(watcher=watcher, watch_listing =listing).delete()
+    # Identify the person logged as watcher
+    watcher = request.user
+        
+    # Record the action from the UI to remove the listing to watchlist
+    if request.method == "POST":
+        listing = get_object_or_404(Listing, title=title)
+        Watchlist.objects.filter(watcher=watcher, watch_listing =listing).delete()
     return HttpResponseRedirect(reverse("listing", args=(title,)))
