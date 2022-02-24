@@ -32,8 +32,10 @@
             <p>current bid: {{ listing.price }}</p>
             <input type="submit" value="Close auction">  
         {% elif user.is_authenticated %}
-            <input type="text" name="" id="" placeholder="{{ listing.price }}">
-            <input type="submit" value="Bid"> 
+            <form action="{% url 'bid' listing.title %}" method="POST">{% csrf_token %}
+                <input type="text" name="bid" placeholder="{{ listing.price }}">
+                <input type="submit" value="Bid"> 
+            </form>
         {% else %}
             <p>You need to sign in to Bid</p>
         {% endif %}

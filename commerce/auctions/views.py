@@ -1,6 +1,7 @@
 from asyncio.windows_events import NULL
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
+from django.forms import ValidationError
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect; HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -33,11 +34,9 @@ def login_view(request):
     else:
         return render(request, "auctions/login.html")
 
-
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
-
 
 def register(request):
     if request.method == "POST":
@@ -87,6 +86,8 @@ def listing(request, title):
     # Get the listing data if the listing exist
     listing = get_object_or_404(Listing, title=title)
 
+    bid=int(listing.price)
+
     # Get all comments linking to the listing
     comments = listing.items.all()
     
@@ -103,7 +104,8 @@ def listing(request, title):
         "title" : title,
         "listing" : listing,
         "comments": comments,
-        "watchlist" : watchlist
+        "watchlist" : watchlist,
+        "bid": bid,
     })
 
 def add_watchlist(request, title):
@@ -123,6 +125,7 @@ def add_watchlist(request, title):
     return HttpResponseRedirect(reverse("listing", args=(title,)))
 
 def remove_watchlist(request, title):
+    
     # Identify the person logged as watcher
     watcher = request.user
         
@@ -130,4 +133,24 @@ def remove_watchlist(request, title):
     if request.method == "POST":
         listing = get_object_or_404(Listing, title=title)
         Watchlist.objects.filter(watcher=watcher, watch_listing =listing).delete()
+    return HttpResponseRedirect(reverse("listing", args=(title,)))
+
+def bid(request, title):
+
+    # Identify the person logged as bidder
+    bidder = request.user
+
+    # Retrieve data from the Front End
+    if request.method == "POST":
+        bid = int(request.POST.get("bid"))
+        print(bid)
+        current_price = get_object_or_404(Listing, title=title).price
+        print(current_price)
+
+        if bid <= current_price:
+            raise ValidationError("Bid must be higher than current bid")
+
+        print(bid)
+
+    # Return the user to the listing page
     return HttpResponseRedirect(reverse("listing", args=(title,)))
