@@ -1,8 +1,10 @@
 from asyncio.windows_events import NULL
+import imp
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.forms import ValidationError
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect; HttpResponseBadRequest
+from .forms import createListingForm; HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 
@@ -65,21 +67,26 @@ def register(request):
         return render(request, "auctions/register.html")
 
 def create(request):
-    # Identify the person logged as seller
-    seller = request.user
 
-    # Retrieve data from the Front End
     if request.method == "POST":
-        title = request.POST["title"]
-        description = request.POST["description"]
-        price = request.POST["price"]
-        category = request.POST["category"]
-        image = request.POST["image"] 
+        seller = User.objects.get(username = request.user)
+        form = createListingForm(request.POST, seller)
+        if form.is_valid():
+            listing = form.save(commit=False)
+            listing.seller = seller
+            listing.save()
 
-        # Add the new listing in the Database
-        Listing(title=title, description=description, price=price, image=image, category=category, seller=seller).save()
+            return HttpResponseRedirect(reverse("index"))
+        
+        else:
+            return render(request, "auctions/create.html", {
+                'form' : form
+                })
+    else:
+        return render(request, "auctions/create.html", {
+            "form": createListingForm()
+        })
     
-    return HttpResponseRedirect(reverse("index"))
 
 def listing(request, title):
 
@@ -149,7 +156,6 @@ def bid(request, title):
 
         if bid <= current_price:
             raise ValidationError("Bid must be higher than current bid")
-
         print(bid)
 
     # Return the user to the listing page
