@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.forms import ValidationError
-from .forms import createListingForm; HttpResponseBadRequest
+from .forms import addBidForm, createListingForm; HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 
@@ -15,7 +15,6 @@ def index(request):
     return render(request, "auctions/index.html",{
         "listings" : Listing.objects.all() 
     })
-
 
 def login_view(request):
     if request.method == "POST":
@@ -74,7 +73,7 @@ def create(request):
         seller = User.objects.get(username = request.user)
 
         # Capture the data of the new listing from the UI using the form created on forms.py
-        form = createListingForm(request.POST, seller)
+        form = createListingForm(request.POST)
         if form.is_valid():
             # Save temporarly the data of the form and appending the data with the seller
             listing = form.save(commit=False)
@@ -118,6 +117,7 @@ def listing(request, title):
         "comments": comments,
         "watchlist" : watchlist,
         "bid": bid,
+        "form" : addBidForm()
     })
 
 def add_watchlist(request, title):
@@ -149,19 +149,33 @@ def remove_watchlist(request, title):
 
 def bid(request, title):
 
-    # Identify the person logged as bidder
-    bidder = request.user
-
     # Retrieve data from the Front End
     if request.method == "POST":
-        bid = int(request.POST.get("bid"))
-        print(bid)
-        current_price = get_object_or_404(Listing, title=title).price
-        print(current_price)
 
-        if bid <= current_price:
-            raise ValidationError("Bid must be higher than current bid")
-        print(bid)
+        # Identify the bidder of the new listing
+        bidder = User.objects.get(username = request.user)
+        print(bidder)
+        
+        form = addBidForm(request.POST)
+        print(form)
+        if form.is_valid():
+            # Save temporarly the data of the form and appending the data with the seller
+            bid = form.save(commit=False)
+            bid.bidder = bidder
+            bid.auction = get_object_or_404(Listing, title=title)
+            # Saving data of new listing in the DB
+            print(bid)
+            bid.save()
+
+
+        # bid = int(request.POST.get("bid"))
+        # print(bid)
+        # current_price = get_object_or_404(Listing, title=title).price
+        # print(current_price)
+
+        # if bid <= current_price:
+        #     raise ValidationError("Bid must be higher than current bid")
+        # print(bid)
 
     # Return the user to the listing page
     return HttpResponseRedirect(reverse("listing", args=(title,)))

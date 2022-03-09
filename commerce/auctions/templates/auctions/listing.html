@@ -33,7 +33,7 @@
             <input type="submit" value="Close auction">  
         {% elif user.is_authenticated %}
             <form action="{% url 'bid' listing.title %}" method="POST">{% csrf_token %}
-                <input type="text" name="bid" placeholder="{{ listing.price }}">
+                {{ form }}
                 <input type="submit" value="Bid"> 
             </form>
         {% else %}
