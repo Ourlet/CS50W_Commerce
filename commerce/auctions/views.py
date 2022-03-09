@@ -67,13 +67,19 @@ def register(request):
         return render(request, "auctions/register.html")
 
 def create(request):
-
+    # Check if method of form is post
     if request.method == "POST":
+
+        # Identify the seller of the new listing
         seller = User.objects.get(username = request.user)
+
+        # Capture the data of the new listing from the UI using the form created on forms.py
         form = createListingForm(request.POST, seller)
         if form.is_valid():
+            # Save temporarly the data of the form and appending the data with the seller
             listing = form.save(commit=False)
             listing.seller = seller
+            # Saving data of new listing in the DB
             listing.save()
 
             return HttpResponseRedirect(reverse("index"))
@@ -86,7 +92,6 @@ def create(request):
         return render(request, "auctions/create.html", {
             "form": createListingForm()
         })
-    
 
 def listing(request, title):
 
