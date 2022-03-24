@@ -152,30 +152,54 @@ def bid(request, title):
     # Retrieve data from the Front End
     if request.method == "POST":
 
-        # Identify the bidder of the new listing
-        bidder = User.objects.get(username = request.user)
-        print(bidder)
-        
         form = addBidForm(request.POST)
-        print(form)
         if form.is_valid():
-            # Save temporarly the data of the form and appending the data with the seller
-            bid = form.save(commit=False)
-            bid.bidder = bidder
-            bid.auction = get_object_or_404(Listing, title=title)
-            # Saving data of new listing in the DB
-            print(bid)
-            bid.save()
+            bid = float(form.cleaned_data["bid"])
+            
+            if bid <= 0:
+                return render(request, "auctions/error_handling.html",
+                {
+                    "code": 400,
+                    "message": "Bid must be higher than 0"
+                })
+            
+            try:
+                bidder = User.objects.get(username = request.user)
+                listing = get_object_or_404(Listing, title=title)
+            except Listing.DoesNotExist:
+                return render (request, "auctions/error_handling.html",
+                {
+                    "code": 404,
+                    "Message": "Listing doesn't exist"
+                })
 
+            if listing.seller == bidder:
+                return render(request, "auctions/error_handling.html",{
+                    "code": 400, 
+                    "message": "Seller can't make a bid"
+                })
 
-        # bid = int(request.POST.get("bid"))
-        # print(bid)
-        # current_price = get_object_or_404(Listing, title=title).price
-        # print(current_price)
+            highest_bid = Bid.objects.filter(auction=listing).order_by('bid').first()
+            if highest_bid is None or bid > highest_bid.bid :
+                new_bid = Bid(auction=listing, bidder=bidder, bid=bid)
+                new_bid.save()
 
-        # if bid <= current_price:
-        #     raise ValidationError("Bid must be higher than current bid")
-        # print(bid)
-
-    # Return the user to the listing page
-    return HttpResponseRedirect(reverse("listing", args=(title,)))
+                listing.price = bid
+                listing.save()
+            
+                return HttpResponseRedirect(reverse("listing", args=(title,)))
+            else:
+                return render(request, "auctions/error_handling.html", {
+                    "code": 400,
+                    "message": "Your bid is too small"
+                })
+        else:
+            return render(request, "auctions/error_handling.html",{
+                "code": 400,
+                "message": "Form is invalid"
+            })
+        
+    return render(request, "auctions/error_handling.html", {
+    "code": 405,
+    "message": "Method Not Allowed"
+})

@@ -1,0 +1,10 @@
+{% extends "auctions/layout.html" %}
+{% load static %}
+
+{% block body %}
+<div class="error-container">
+    <div class="error-code">{{ code }}</div>
+    <div class="error-message">{{ message }}</div>
+</div>
+
+{% endblock %}
