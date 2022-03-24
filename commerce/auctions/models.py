@@ -11,7 +11,7 @@ class User(AbstractUser):
 class Listing(models.Model):
     title = models.CharField(max_length=32)
     description = models.TextField()
-    price = models.IntegerField()
+    price = models.DecimalField(max_digits=6, decimal_places=2, default=0.0)
     image = models.URLField(max_length=200, blank=True)
     category = models.CharField(max_length=32)
     creation_date = models.DateField(auto_now=False, auto_now_add=True)
@@ -25,7 +25,7 @@ class Listing(models.Model):
 class Bid(models.Model):
     auction = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="auctions")
     bidder = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bidder")
-    bid = models.IntegerField()
+    bid = models.DecimalField(max_digits=6, decimal_places=2, default=0.0)
     bid_date = models.DateField(auto_now=False, auto_now_add=True)
 
     def __str__(self):
