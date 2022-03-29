@@ -5,8 +5,10 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.forms import ValidationError
 from .forms import addBidForm, createListingForm; HttpResponseBadRequest
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
+
 
 from .models import User, Listing, Bid, Comment, Watchlist
 
@@ -96,19 +98,23 @@ def listing(request, title):
 
     # Get the listing data if the listing exist
     listing = get_object_or_404(Listing, title=title)
-
+    state = listing.state
     bid=int(listing.price)
 
     # Get all comments linking to the listing
     comments = listing.items.all()
     
     # Request DB to know if user has or not the listing as Watchlist
+
     watcher = request.user
-    watchlisted = watcher.watchers.all().filter(watch_listing = listing)
-    if not watchlisted:
+    if request.user.is_anonymous:
         watchlist = False
-    else :
-        watchlist = True
+    else:
+        watchlisted = watcher.watchers.all().filter(watch_listing = listing)
+        if not watchlisted:
+            watchlist = False
+        else :
+            watchlist = True
 
     # Data returned to Listing page
     return render(request, "auctions/listing.html",{
@@ -117,7 +123,8 @@ def listing(request, title):
         "comments": comments,
         "watchlist" : watchlist,
         "bid": bid,
-        "form" : addBidForm()
+        "form" : addBidForm(),
+        "state" : state
     })
 
 def add_watchlist(request, title):
@@ -179,13 +186,16 @@ def bid(request, title):
                     "message": "Seller can't make a bid"
                 })
 
-            highest_bid = Bid.objects.filter(auction=listing).order_by('bid').first()
+            highest_bid = Bid.objects.filter(auction=listing).order_by('bid').last()
+            print(highest_bid)
             if highest_bid is None or bid > highest_bid.bid :
                 new_bid = Bid(auction=listing, bidder=bidder, bid=bid)
                 new_bid.save()
 
                 listing.price = bid
+                listing.buyer = bidder
                 listing.save()
+                print(listing.buyer)
             
                 return HttpResponseRedirect(reverse("listing", args=(title,)))
             else:
@@ -203,3 +213,15 @@ def bid(request, title):
     "code": 405,
     "message": "Method Not Allowed"
 })
+
+def close(request, title):
+    if request.method == "POST":
+        listing = get_object_or_404(Listing, title=title)
+
+        # Save the change of state to the DB
+        listing.state = False
+        listing.save()
+        
+    # Return the user to the listing page
+    print(listing.state)
+    return HttpResponseRedirect(reverse("listing", args=(title,)))

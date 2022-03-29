@@ -30,15 +30,22 @@
         <h2>Bidding</h2>
         <p>Current bid: {{ listing.price }}</p>
             <br>
-        {% if user.is_authenticated and request.user == listing.creator %}
-            <input type="submit" value="Close auction">  
-        {% elif user.is_authenticated %}
+        {% if user.is_authenticated and request.user == listing.seller and state == True %}
+            <form action="{%url 'close' listing.title %}" method="POST">{% csrf_token %}
+                <input type="submit" value="Close auction">  
+            </form>
+        {% elif user.is_authenticated and state == True %}
             <form action="{% url 'bid' listing.title %}" method="POST">{% csrf_token %}
                 {{ form }}
                 <input type="submit" value="Bid"> 
             </form>
-        {% else %}
+
+        {% elif state == False %}
+            <p>The listing has been sold to {{ listing.buyer }} for the price of {{ listing.price }}</p>
+        
+            {% else %}
             <p>You need to sign in to Bid</p>
+        
         {% endif %}
     </div>
 
