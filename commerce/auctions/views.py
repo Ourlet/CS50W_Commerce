@@ -2,9 +2,8 @@ from asyncio.windows_events import NULL
 import imp
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
-from django.forms import ValidationError
-from .forms import addBidForm, createListingForm; HttpResponseBadRequest
+from django.http import HttpResponseRedirect
+from .forms import addBidForm, createListingForm, addCommentForm
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
@@ -124,6 +123,7 @@ def listing(request, title):
         "watchlist" : watchlist,
         "bid": bid,
         "form" : addBidForm(),
+        "comment" : addCommentForm(),
         "state" : state
     })
 
@@ -195,7 +195,6 @@ def bid(request, title):
                 listing.price = bid
                 listing.buyer = bidder
                 listing.save()
-                print(listing.buyer)
             
                 return HttpResponseRedirect(reverse("listing", args=(title,)))
             else:
@@ -225,3 +224,20 @@ def close(request, title):
     # Return the user to the listing page
     print(listing.state)
     return HttpResponseRedirect(reverse("listing", args=(title,)))
+
+def comment(request, title):
+    if request.method == "POST":
+        listing = get_object_or_404(Listing, title = title)
+        writer = User.objects.get(username = request.user)
+
+        form = addCommentForm(request.POST)
+        if form.is_valid():
+            comment = form.cleaned_data["content"]
+            print(comment)
+            new_comment = Comment(writer=writer, item = listing, content = comment)
+            new_comment.save()
+
+    return HttpResponseRedirect(reverse("listing", args=(title,)))
+
+
+

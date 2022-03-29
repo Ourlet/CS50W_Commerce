@@ -53,10 +53,12 @@
     <div>
         <h2>Comments</h2>
         {% if user.is_authenticated %}
-            <h3>Leave a comment</h3> 
-            <label for="content">Your comment</label><br>
-            <textarea name="content" id="" cols="30" rows="10" required>What do you think?</textarea><br>
-            <input type="submit" value="Add your comment">
+            <h3>Leave a comment</h3>
+            <form action="{% url 'comment' listing.title %}" method="POST">{% csrf_token %}
+                <label for="content">Your comment</label><br>
+                    {{ comment }}                
+                <input type="submit" value="Add your comment">
+            </form>
         {% else %}
         
         {% endif %}

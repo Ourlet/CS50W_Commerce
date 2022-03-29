@@ -1,6 +1,6 @@
-from django.forms import CharField, DecimalField, HiddenInput, TextInput, ValidationError, ModelForm
+from django.forms import DecimalField, TextInput, ModelForm
 
-from .models import Bid, Listing
+from .models import Bid, Listing, Comment
 
 class createListingForm(ModelForm):
     price = DecimalField(initial=199.99, label='bid', widget=TextInput(attrs={"placeholder": "Your bid"}))
@@ -22,4 +22,12 @@ class addBidForm(ModelForm):
         model = Bid
         fields = [
             'bid'
+        ]
+
+class addCommentForm(ModelForm):
+
+    class Meta:
+        model = Comment
+        fields = [
+            'content'
         ]
