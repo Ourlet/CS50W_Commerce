@@ -39,7 +39,8 @@
                 {{ form }}
                 <input type="submit" value="Bid"> 
             </form>
-
+        {% elif user.is_authenticated and request.user == listing.buyer and state == False %}
+             <p>Congratulations {{ listing.buyer }}! You won the auction at the price of {{ listing.price }}</p>
         {% elif state == False %}
             <p>The listing has been sold to {{ listing.buyer }} for the price of {{ listing.price }}</p>
         
