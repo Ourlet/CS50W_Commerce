@@ -134,11 +134,11 @@ def add_watchlist(request, title):
 
     # Record the action from the UI to add the listing to watchlist
     if request.method == "POST":
-        listing = request.POST.get("listing_id")
+        listing = get_object_or_404(Listing, title=title)
 
         # Save the desire to add to the watchlist to the DB
-        instance = Watchlist.objects.create(watcher=watcher)
-        instance.watch_listing.set(listing)
+        watchlist = Watchlist(watcher = watcher, watch_listing = listing)
+        watchlist.save()
         
     # Return the user to the listing page
     return HttpResponseRedirect(reverse("listing", args=(title,)))
@@ -239,5 +239,13 @@ def comment(request, title):
 
     return HttpResponseRedirect(reverse("listing", args=(title,)))
 
+def watchlist(request):
+    watcher = request.user
+    listings = watcher.watchers.all()
+    print(listings)
 
+    return render(request, "auctions/watchlist.html",{
+        "listings" : listings
+    })
+    
 
