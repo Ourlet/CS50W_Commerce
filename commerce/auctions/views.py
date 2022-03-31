@@ -243,7 +243,14 @@ def watchlist(request):
     watcher = request.user
     listings = watcher.watchers.all()
     print(listings)
+    return render(request, "auctions/watchlist.html",{
+        "listings" : listings
+    })
 
+def category(request):
+    watcher = request.user
+    listings = watcher.watchers.all()
+    print(listings)
     return render(request, "auctions/watchlist.html",{
         "listings" : listings
     })
