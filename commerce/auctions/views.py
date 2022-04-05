@@ -247,12 +247,19 @@ def watchlist(request):
         "listings" : listings
     })
 
-def category(request):
-    watcher = request.user
-    listings = watcher.watchers.all()
+def categories(request):
+    categories = Listing.objects.order_by().values_list('category', flat=True).distinct()
+    print(categories)
+    return render(request, "auctions/categories.html",{
+        "categories" : categories
+    })
+
+def category(request, category):
+    listings = Listing.objects.filter(category = category).all()
     print(listings)
-    return render(request, "auctions/watchlist.html",{
-        "listings" : listings
+    return render(request, "auctions/category.html",{
+        "listings" : listings,
+        "category": category
     })
     
 
