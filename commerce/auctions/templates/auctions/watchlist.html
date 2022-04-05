@@ -8,6 +8,7 @@
         <div>
             <a href="{% url 'listing' listing.watch_listing.title %}">
                 <h3>{{ listing.watch_listing.title }}</h3>
+                <img src="{{ listing.watch_listing.image }}" alt="{{listing.watch_listing.title}}">
                 <p>{{ listing.watch_listing.price }}</p>
             </a>
         </div>
