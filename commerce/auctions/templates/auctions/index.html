@@ -4,13 +4,20 @@
     <h2>Active Listings</h2>
 
     {% for item in listings %}
-    <div><a href="{% url 'listing' item.title %}">
-            <h3>{{ item.title }}</h3>
-            <p>{{ item.price }}</p>
-            <p>{{ item.description }}</p>
-            <p>{{item.creation_date}}</p>
-            <img src="{{ item.image }}" alt="broomstick">
-        </a>
+    <div class="wrapper" > 
+        <div class="product-img">
+            <img src="{{ item.image }}" height="420" width="327" alt="{{item.title}}">
+        </div>   
+        <div class="product-info">
+            <div class="product-text">
+                <h1>{{ item.title }}</h1>
+                <p>{{ item.description }}</p>
+            </div>
+            <div class="product-price-btn">
+                <p><span>{{ item.price }}</span>$</p>
+                <a href="{% url 'listing' item.title %}"><button type="button">Bid now</button></a>
+            </div>
+        </div>
     </div>
     {% endfor %}
 
