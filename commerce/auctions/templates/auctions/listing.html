@@ -2,73 +2,100 @@
 
 {% block body %}
     <div>
-        <h2>{{ listing.title }}</h2>
-        <img src="{{ listing.image }}" alt="">
-        <p>Description : {{ listing.description }}</p>
-        <p>The current price is {{ listing.price }}</p>
+        <h2>{{ listing.title }}</h2>    
     </div>
 
-    <div>
-        {% if user.is_authenticated %}
-            {% if watchlist == False %}
-                <form action="{% url 'add-watchlist' listing.title %}" method="POST">{% csrf_token %}
-                    <button name="add" class="btn btn-primary" placeholder="Add to favorite">Add to favorite</button> 
-                    <input type="hidden" name="listing_id" value="{{ listing.id }}">
-                </form>
+    <div class="listings">
+        <div class="card">
+            <div class="photo">
+                <img src="{{ listing.image }}" height="420" width="327" alt="{{listing.title}}">
+            </div>
+        </div>
+            <div class="description">
+            <p>Description : {{ listing.description }}</p>
+                <p>The current price is : <span style=" font-weight: 300; padding-top: 15px; margin: 0;
+                    font-size: 30px;" >{{ listing.price }}</span></p>
+                    <br>
+                <div>
+                    {% if user.is_authenticated %}
+                        {% if watchlist == False %}
+                            <form action="{% url 'add-watchlist' listing.title %}" method="POST">{% csrf_token %}
+                                <button name="add" class="btn btn-primary" placeholder="Add to favorite">Add to favorite</button> 
+                                <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                            </form>
+                    
+                        {% else %}
+                            <form action="{% url 'remove-watchlist' listing.title %}" method="POST">{% csrf_token %}
+                                <button name="" class="btn btn-secondary" placeholder="Remove to favorite">Remove to favorite</button> 
+                            </form>
+                        {% endif %}
+                    {% else %}
+                            
+                    {% endif %}
+                </div>
+            </div>
         
-            {% else %}
-                <form action="{% url 'remove-watchlist' listing.title %}" method="POST">{% csrf_token %}
-                    <button name="" class="btn btn-secondary" placeholder="Remove to favorite">Remove to favorite</button> 
-                </form>
-            {% endif %}
-        {% else %}
-                
-        {% endif %}
     </div>
+
 
     <div>
         <h2>Bidding</h2>
-        <p>Current bid: {{ listing.price }}</p>
-            <br>
-        {% if user.is_authenticated and request.user == listing.seller and state == True %}
-            <form action="{%url 'close' listing.title %}" method="POST">{% csrf_token %}
-                <input type="submit" value="Close auction">  
-            </form>
-        {% elif user.is_authenticated and state == True %}
-            <form action="{% url 'bid' listing.title %}" method="POST">{% csrf_token %}
-                {{ form }}
-                <input type="submit" value="Bid"> 
-            </form>
-        {% elif user.is_authenticated and request.user == listing.buyer and state == False %}
-             <p>Congratulations {{ listing.buyer }}! You won the auction at the price of {{ listing.price }}</p>
-        {% elif state == False %}
-            <p>The listing has been sold to {{ listing.buyer }} for the price of {{ listing.price }}</p>
-        
-            {% else %}
-            <p>You need to sign in to Bid</p>
-        
-        {% endif %}
+        <div class="listings">
+            <div class="description">
+                    <br>
+                {% if user.is_authenticated and request.user == listing.seller and state == True %}
+                    <h3>Current bid : {{ listing.price }}</h3>
+                    <p>You are the seller of this listing, you can close the bidding by clicking on the below button</h4>
+                    <form action="{%url 'close' listing.title %}" method="POST">{% csrf_token %}
+                        <input type="submit" value="Close auction">  
+                    </form>
+                {% elif user.is_authenticated and state == True %}
+                    <h3>Current bid : {{ listing.price }}</h3>
+                    <br>
+                    <form action="{% url 'bid' listing.title %}" method="POST">{% csrf_token %}
+                        {{ form }}
+                        <input type="submit" value="Bid"> 
+                    </form>
+                {% elif user.is_authenticated and request.user == listing.buyer and state == False %}
+                     <h3>Congratulations {{ listing.buyer }}! You won the auction at the price of {{ listing.price }}</h3>
+                {% elif state == False %}
+                    <h3>The listing has been sold to {{ listing.buyer }} for the price of {{ listing.price }}</h3>
+                
+                    {% else %}
+                    <h3>You need to sign in to Bid</h3>
+                    
+                    {% endif %}
+            </div>
+        </div>
     </div>
 
     <div>
         <h2>Comments</h2>
-        {% if user.is_authenticated %}
-            <h3>Leave a comment</h3>
-            <form action="{% url 'comment' listing.title %}" method="POST">{% csrf_token %}
-                <label for="content">Your comment</label><br>
-                    {{ comment }}                
-                <input type="submit" value="Add your comment">
-            </form>
-        {% else %}
-        
-        {% endif %}
+        <div class="listings">
+            <div class="description">
 
-        <h3>Comments on this product</h3>
-        {% for comment in comments %}
-            <p>{{ comment.writer}}</p>
-            <p>{{ comment.content}}</p>
-            <p>{{ comment.comment_creation_date}}</p>
-        {% endfor %}
+                {% if user.is_authenticated %}
+                    <h3>Leave a comment</h3>
+                    <br>
+                    <form action="{% url 'comment' listing.title %}" method="POST">{% csrf_token %}
+                            {{ comment }}
+                            <br><br>
+                        <input type="submit" value="Add your comment">
+                    </form>
+                {% else %}
+                
+                {% endif %}
+        
+                
+            </div>
+        </div>
+        <div class="description">
+            <h4>Comments on this product</h4>
+                {% for comment in comments %}
+                    <p>{{ comment.content}}</p>
+                    <p style="font-size: 10px;">{{ comment.writer}} - {{ comment.comment_creation_date}}</p>
+                {% endfor %}
+        </div>
     </div>
 
 {% endblock %}

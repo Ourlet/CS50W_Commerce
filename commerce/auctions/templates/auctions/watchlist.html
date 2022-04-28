@@ -3,15 +3,22 @@
 {% block body %}
     <div>
         <h2>My watchlist</h2>
-
+    </div>
+    <div class="listings">
         {% for listing in listings %}
-        <div>
-            <a href="{% url 'listing' listing.watch_listing.title %}">
-                <h3>{{ listing.watch_listing.title }}</h3>
-                <img src="{{ listing.watch_listing.image }}" alt="{{listing.watch_listing.title}}">
-                <p>{{ listing.watch_listing.price }}</p>
-            </a>
+        <div class="card">
+            <div class="photo">
+                <img src="{{ listing.watch_listing.image }}" height="420" width="327" alt="{{listing.watch_listing.title}}">
+            </div>
+            <div class="description">
+                <h2>{{ listing.watch_listing.title }}</h2>
+                <h4>{{ listing.watch_listing.category }}</h4>
+                <h1>{{ listing.watch_listing.price  }}</h1>
+                <p>{{ listing.watch_listing.description  }}</p>
+                <a href="{% url 'listing' listing.watch_listing.title %}"><button type="button">Bid now</button></a>
+            </div>
         </div>
         {% endfor %}
+    </div>
 
 {% endblock %}

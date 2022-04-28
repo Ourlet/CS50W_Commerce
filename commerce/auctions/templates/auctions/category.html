@@ -3,13 +3,21 @@
 {% block body %}
     <div>
         <h2>Category : {{ category }}</h2>
-
+    </div>
+    <div class="listings">
         {% for listing in listings %}
-            <a href="{% url 'listing' listing.title %}">
-                <h3>{{ listing.title }}</h3>
-                <img src="{{ listing.image }}" alt="{{listing.title}}">
-                <p>{{ listing.price }}</p>
-            </a>
+        <div class="card">
+            <div class="photo">
+                <img src="{{ listing.image }}" height="420" width="327" alt="{{listing.title}}">
+            </div>
+            <div class="description">
+                <h2>{{ listing.title }}</h2>
+                <h4>{{ listing.category }}</h4>
+                <h1>{{ listing.price  }}</h1>
+                <p>{{ listing.description  }}</p>
+                <a href="{% url 'listing' listing.title %}"><button type="button">Bid now</button></a>
+            </div>
+        </div>
         {% endfor %}
-
+    </div>
 {% endblock %}
